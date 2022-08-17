@@ -1,0 +1,63 @@
+---
+- hosts: localhost
+  become: yes
+  pre_tasks:
+    - name: Add shared run group
+      ansible.builtin.group:
+        name: "{{ user_group }}"
+        state: present
+      become: yes
+
+    - name: Create run user
+      ansible.builtin.user:
+        append: yes
+        groups:
+          - "{{ user_group }}"
+        name: "{{ user }}"
+        shell: /bin/bash
+        state: present
+      become: yes
+  tasks:
+
+    - name: Create application's home directory.
+      file:
+        path: "{{idr_home_dir}}"
+        state: directory
+        owner: "{{ user }}"
+        mode: 0664  
+
+
+    - name: Create logs directory.
+      file:
+        path: "{{ idr_home_dir }}/logs"
+        state: directory
+        owner: "{{ user }}"
+        mode: 0664 
+
+    - name: Download the config template.
+      become: yes
+      get_url:
+        url: "{{ config_template }}"
+        dest: "{{ idr_home_dir }}/config.yaml"
+        mode: 0664
+
+
+    - name: Get latest idr_client binaries download url.
+      uri:
+        url: "{{ release_url }}"
+        return_content: yes
+        body_format: json
+      register: idr_release
+      until: idr_release.status == 200
+      retries: 5
+
+
+    - name: Download client binaries in executable mode.
+      become: yes
+      get_url:
+        url: "{{ idr_release.json.assets[0]['browser_download_url'] }}"
+        dest: "{{ idr_home_dir }}/client"
+        mode: 0755
+        force: yes
+     
+
