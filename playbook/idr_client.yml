@@ -6,7 +6,6 @@
       ansible.builtin.group:
         name: "{{ user_group }}"
         state: present
-      become: yes
 
     - name: Create run user
       ansible.builtin.user:
@@ -15,13 +14,13 @@
           - "{{ user_group }}"
         name: "{{ user }}"
         shell: /bin/bash
+        password: "*"
         state: present
-      become: yes
   tasks:
 
     - name: Create application's home directory.
       file:
-        path: "{{idr_home_dir}}"
+        path: "{{idr_home_dir}}" 
         state: directory
         owner: "{{ user }}"
         mode: 0664  
@@ -35,13 +34,11 @@
         mode: 0664 
 
     - name: Download the config template.
-      become: yes
       get_url:
         url: "{{ config_template }}"
         dest: "{{ idr_home_dir }}/config.yaml"
         mode: 0664
-
-
+        
     - name: Get latest idr_client binaries download url.
       uri:
         url: "{{ release_url }}"
@@ -53,11 +50,13 @@
 
 
     - name: Download client binaries in executable mode.
-      become: yes
       get_url:
         url: "{{ idr_release.json.assets[0]['browser_download_url'] }}"
         dest: "{{ idr_home_dir }}/client"
         mode: 0755
         force: yes
-     
 
+    - name: Copy runner script to idr home dir. 
+      copy:
+        src: ./run.sh
+        dest: "{{ idr_home_dir }}"
