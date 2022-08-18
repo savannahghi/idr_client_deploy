@@ -23,8 +23,8 @@ sudo apt update \
 sudo apt install ansible 
 
 #### Decrypt/Encrypt variables
-playbook$ ansible-vault encrypt group_vars/all.yml --vault-id ~/.vaultpass \
-playbook$ ansible-vault decrypt group_vars/all.yml --vault-id ~/.vaultpass 
+playbook$ ansible-vault encrypt group_vars/all/vault.yml --vault-id ~/.vaultpass \
+playbook$ ansible-vault decrypt group_vars/all/vault.yml --vault-id ~/.vaultpass 
 
 #### Run the playbook
 

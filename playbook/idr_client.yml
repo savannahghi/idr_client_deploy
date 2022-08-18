@@ -27,18 +27,18 @@
         state: directory
         
 
-    # - name: Download the config template.
-    #   get_url:
-    #     url: "{{ config_template }}"
-    #     dest: "{{ idr_home_dir }}/config.yaml"
-    #     owner: "{{ user }}"
+    - name: Download the config template.
+      get_url:
+        url: "{{ config_template }}"
+        dest: "{{ idr_home_dir }}/config.yaml"
+        owner: "{{ user }}"
         
-    # - name: Copy runner script to idr home dir. 
-    #   copy:
-    #     src: ./run.sh
-    #     dest: "{{ idr_home_dir }}"
-    #     owner: "{{ user }}"
-    #     mode: 0755
+    - name: Copy runner script to idr home dir. 
+      copy:
+        src: ./run.sh
+        dest: "{{ idr_home_dir }}"
+        owner: "{{ user }}"
+        mode: 0755
 
 
     - name: Get latest idr_client binaries download url.
