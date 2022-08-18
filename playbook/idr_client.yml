@@ -1,44 +1,46 @@
 ---
 - hosts: localhost
   become: yes
+  become_user: "{{ user }}"
   pre_tasks:
-    - name: Add shared run group
-      ansible.builtin.group:
-        name: "{{ user_group }}"
-        state: present
 
     - name: Create run user
+      become_user: root
       ansible.builtin.user:
-        append: yes
-        groups:
-          - "{{ user_group }}"
         name: "{{ user }}"
         shell: /bin/bash
         password: "*"
         state: present
-  tasks:
+  
 
+  tasks:
     - name: Create application's home directory.
       file:
         path: "{{idr_home_dir}}" 
         state: directory
         owner: "{{ user }}"
-        mode: 0664  
-
+        mode: 0755  
 
     - name: Create logs directory.
       file:
         path: "{{ idr_home_dir }}/logs"
         state: directory
-        owner: "{{ user }}"
-        mode: 0664 
-
-    - name: Download the config template.
-      get_url:
-        url: "{{ config_template }}"
-        dest: "{{ idr_home_dir }}/config.yaml"
-        mode: 0664
         
+
+    # - name: Download the config template.
+    #   get_url:
+    #     url: "{{ config_template }}"
+    #     dest: "{{ idr_home_dir }}/config.yaml"
+    #     owner: "{{ user }}"
+        
+    # - name: Copy runner script to idr home dir. 
+    #   copy:
+    #     src: ./run.sh
+    #     dest: "{{ idr_home_dir }}"
+    #     owner: "{{ user }}"
+    #     mode: 0755
+
+
     - name: Get latest idr_client binaries download url.
       uri:
         url: "{{ release_url }}"
@@ -56,7 +58,12 @@
         mode: 0755
         force: yes
 
-    - name: Copy runner script to idr home dir. 
-      copy:
-        src: ./run.sh
-        dest: "{{ idr_home_dir }}"
+
+    - name: Create a cron task for user idr
+      ansible.builtin.cron:
+        name: run auto extraction
+        user: "{{ user }}"
+        hour: "3"
+        minute: "0"
+        job: "{{ idr_home_dir }}/run.sh"
+        
