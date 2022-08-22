@@ -2,6 +2,7 @@
 
 app_host: "{{ app_host }}"
 user: "{{ idr_user }}"
+user_pwd: "{{ idr_user_pwd }}"
 user_group: "{{ idr_user_group }}"
 home_dir: "{{ idr_home_dir }}"
 config_template: "{{ config_template }}"

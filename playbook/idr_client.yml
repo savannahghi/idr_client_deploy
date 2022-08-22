@@ -1,20 +1,22 @@
 ---
 - hosts: localhost
   become: yes
-  become_user: "{{ user }}"
   pre_tasks:
 
     - name: Create run user
-      become_user: root
       ansible.builtin.user:
         name: "{{ user }}"
+        comment: "custom user for running idr related tasks."
         shell: /bin/bash
-        password: "*"
+        update_password: always
+        password: "{{ user_pwd | password_hash('sha512')}}"
         state: present
-  
+        
 
   tasks:
     - name: Create application's home directory.
+      become: yes
+      become_user: "{{ user }}"
       file:
         path: "{{idr_home_dir}}" 
         state: directory
@@ -22,9 +24,12 @@
         mode: 0755  
 
     - name: Create logs directory.
+      become: yes
+      become_user: "{{ user }}"
       file:
         path: "{{ idr_home_dir }}/logs"
         state: directory
+        owner: "{{ user }}"
         
 
     - name: Download the config template.
@@ -56,10 +61,11 @@
         url: "{{ idr_release.json.assets[0]['browser_download_url'] }}"
         dest: "{{ idr_home_dir }}/client"
         mode: 0755
+        owner: "{{ user }}"
         force: yes
 
 
-    - name: Create a cron task for user idr
+    - name: Create a cron task for the user 
       ansible.builtin.cron:
         name: run auto extraction
         user: "{{ user }}"
