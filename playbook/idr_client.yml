@@ -3,7 +3,7 @@
   become: yes
   pre_tasks:
 
-    - name: Create run user
+    - name: Add client user to the system.
       ansible.builtin.user:
         name: "{{ user }}"
         comment: "custom user for running idr related tasks."
@@ -60,8 +60,8 @@
       get_url:
         url: "{{ idr_release.json.assets[0]['browser_download_url'] }}"
         dest: "{{ idr_home_dir }}/client"
-        mode: 0755
         owner: "{{ user }}"
+        mode: 0755
         force: yes
 
 
