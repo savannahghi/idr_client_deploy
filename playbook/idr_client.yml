@@ -3,10 +3,10 @@
   become: yes
   pre_tasks:
 
-    - name: Add client user to the system.
+    - name: Add app(idr client) user to the system.
       ansible.builtin.user:
         name: "{{ user }}"
-        comment: "custom user for running idr related tasks."
+        comment: "Custom user for running idr related tasks."
         shell: /bin/bash
         update_password: always
         password: "{{ user_pwd | password_hash('sha512')}}"
@@ -32,13 +32,13 @@
         owner: "{{ user }}"
         
 
-    - name: Download the config template.
+    - name: Download the configuration template.
       get_url:
         url: "{{ config_template }}"
         dest: "{{ idr_home_dir }}/config.yaml"
         owner: "{{ user }}"
         
-    - name: Copy runner script to idr home dir. 
+    - name: Copy script for running the client to idr home dir. 
       copy:
         src: ./run.sh
         dest: "{{ idr_home_dir }}"
@@ -46,7 +46,7 @@
         mode: 0755
 
 
-    - name: Get latest idr_client binaries download url.
+    - name: Get the url for downloading the latest idr_client binaries.
       uri:
         url: "{{ release_url }}"
         return_content: yes
@@ -65,7 +65,7 @@
         force: yes
 
 
-    - name: Create a cron task for the user 
+    - name: Create a cron task to run the extraction every day at 3.00 a.m
       ansible.builtin.cron:
         name: run auto extraction
         user: "{{ user }}"
