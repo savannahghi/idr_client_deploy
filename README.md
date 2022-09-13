@@ -4,11 +4,14 @@ This a simple playbook to automate idr client installation. IDR client is a serv
 
 ### Download and Run the playbook.
 ```
-- terminal$ curl -L https://github.com/savannahghi/idr_client_deploy/archive/refs/heads/main.zip -o idr_client.zip
-- terminal$ unzip idr_client.zip
-- terminal$ cd idr_client_deploy-main
-- terminal$ chmod +x play.sh
-- terminal$ ./play.sh
+- server$ sudo apt install curl
+- server$ curl -L https://github.com/savannahghi/idr_client_deploy/archive/refs/heads/main.zip -o idr_client.zip
+- server$ unzip idr_client.zip
+- server$ cd idr_client_deploy-main
+- server$ touch .vaultpass  // create a file containing pwd key.
+- server$ nano .vaultpass  // add provided key and save, exit.
+- server$ chmod +x play.sh  // make the file executable.
+- server$ ./play.sh // run the playbook.
 ```
 #### On a successful run, expect:
 - Installation of ansible 2.9+
@@ -33,7 +36,8 @@ This a simple playbook to automate idr client installation. IDR client is a serv
 
 #### Extra actions (Tweak cron for a quick test):
 Tweak cron service to run every minute \
-e.g for this change running period to  * * * * * /cron/command.
+e.g for this do; \
+change the running period to  * * * * * /cron/command. \
 **NOTE:** Be careful to edit the correct crontab. It should be specifically for user idr.
 ```
 server@idr$ crontab -e  // open cron file
@@ -52,7 +56,7 @@ You may want to read/change the variables used in the playbook;
 
 #### Finally
 After confirming everything is working correctly;
-- Remember to encrypt decrypted variables.
+- Remember to encrypt if you have decrypted variables.
 - Remember to change back crontab run time back to 3.00 am everyday. i.e  0 3 * * *
 
 

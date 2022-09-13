@@ -21,7 +21,7 @@ then
 else
     echo "Ansible installation for ubuntu "$VERSION_ID
     sudo apt update
-    sudo apt install ansible
+    sudo apt install ansible -y
 fi
 
 # run the playbook
