@@ -1,9 +1,10 @@
 ---
 - hosts: localhost
+  connection: local
   become: yes
   pre_tasks:
 
-    - name: Add app(idr client) user to the system.
+    - name: Add our application user to the system.
       ansible.builtin.user:
         name: "{{ user }}"
         comment: "Custom user for running idr related tasks."
@@ -11,8 +12,7 @@
         update_password: always
         password: "{{ user_pwd | password_hash('sha512')}}"
         state: present
-        
-
+    
   tasks:
     - name: Create application's home directory.
       become: yes

@@ -1,0 +1,5 @@
+# Some ansible versions call for explicit 
+# ... hosts lookup in the inventory file
+
+[localhost]
+127.0.0.1
