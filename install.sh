@@ -25,7 +25,7 @@ else
 fi
 
 # run the playbook
-cd playbook && ansible-playbook -i inventory idr_client.yml --vault-id=../.vaultpass --ask-become-pass -vvv
+cd playbook && ansible-playbook -i inventory idr_client.yml --ask-vault-pass --ask-become-pass -vvv
 
 exit 0
 

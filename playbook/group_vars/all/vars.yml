@@ -1,9 +1,16 @@
 ---
-
-app_host: "{{ app_host }}"
+# user details
 user: "{{ idr_user }}"
 user_pwd: "{{ idr_user_pwd }}"
 user_group: "{{ idr_user_group }}"
 home_dir: "{{ idr_home_dir }}"
-config_template: "{{ config_template }}"
 release_url: "{{ idr_release_url }}"
+
+# server url and credentials
+server_url: "{{ server_url }}"
+server_username: "{{ server_username }}"
+server_password: "{{ server_password }}"
+
+# mysql_db credentials
+mysql_db_username: "{{ mysql_db_username }}"
+mysql_db_password: "{{ mysql_db_password }}"

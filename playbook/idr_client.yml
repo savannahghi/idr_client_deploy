@@ -12,6 +12,7 @@
         update_password: always
         password: "{{ user_pwd | password_hash('sha512')}}"
         state: present
+
     
   tasks:
     - name: Create application's home directory.
@@ -23,6 +24,7 @@
         owner: "{{ user }}"
         mode: 0755  
 
+
     - name: Create logs directory.
       become: yes
       become_user: "{{ user }}"
@@ -32,12 +34,13 @@
         owner: "{{ user }}"
         
 
-    - name: Download the configuration template.
-      get_url:
-        url: "{{ config_template }}"
+    - name: Copy the configuration file to app home directory
+      ansible.builtin.template:
+        src: app.config.j2
         dest: "{{ idr_home_dir }}/config.yaml"
         owner: "{{ user }}"
         
+
     - name: Copy script for running the client to idr home dir. 
       copy:
         src: ./run.sh

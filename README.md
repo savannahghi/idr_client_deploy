@@ -4,15 +4,17 @@ This a simple playbook to automate idr client installation. IDR client is a serv
 
 ### Download and Run the playbook.
 ```
-- server$ sudo apt install curl
-- server$ curl -L https://github.com/savannahghi/idr_client_deploy/archive/refs/heads/main.zip -o idr_client.zip
-- server$ unzip idr_client.zip
-- server$ cd idr_client_deploy-main
-- server$ touch .vaultpass  // create a file containing pwd key.
-- server$ nano .vaultpass  // add provided key and save, exit.
-- server$ chmod +x play.sh  // make the file executable.
-- server$ ./play.sh // run the playbook.
+sudo apt install curl
+curl -L https://github.com/savannahghi/idr_client_deploy/archive/refs/heads/main.zip -o idr_client.zip
+unzip idr_client.zip
+cd idr_client_deploy-main
+./install.sh 
 ```
+
+### Required passwords:
+- Become_pass (this is the admin/root password of the server.)
+- Vault_pass (this should be provided provided)
+
 #### On a successful run, expect:
 - Installation of ansible 2.9+
 - Creation of new user on the system
@@ -23,15 +25,14 @@ This a simple playbook to automate idr client installation. IDR client is a serv
 #### Editing configuration file:
 
 ```
-- server$ sudo -u idr -i  // open terminal as user idr using admin password.
-- server@idr$ cd /home/idr/idr_client  // navigate to root directory of the application.
-- server@idr_client$ nano config.yaml  // open config file for editing. 
-  Put the correct values for:
-    - REMOTE_SERVER
-    - MYSQL_DB_INSTANCE
-    - ORG_UNIT_CODE
-    - ORG_UNIT_NAME
-- server@idr_client$ ./client -c config.yaml  // run the application manually. Successful run should print *Done.* on the terminal.
+sudo -u idr -i  // open terminal as user idr using admin password.
+cd /home/idr/idr_client  // navigate to root directory of the application.
+nano config.yaml  // open your config file for editing and edit this sections: 
+#============================================================================
+- SQL DATA SOURCES SETTINGS
+- FACILITY DETAILS
+#============================================================================
+./run  // run the application manually. Successful run should print *Done.* on the terminal.
 ```
 
 #### Extra actions (Tweak cron for a quick test):
@@ -48,15 +49,12 @@ server@idr$ tail -f /home/idr/idr_client/extracts.log  // log the changes on the
 You may want to read/change the variables used in the playbook; 
 > decryption_key is the secret word that will help you encrypt/decrypt the variables. 
 ```
-- idr_client_deploy-main$ touch .vaultpass && echo **decryption_key** > .vaultpass 
 - idr_client_deploy-main$ cd playbook 
-- playbook$ ansible-vault encrypt group_vars/all/vault.yml --vault-id ../.vaultpass 
-- playbook$ ansible-vault decrypt group_vars/all/vault.yml --vault-id ../.vaultpass 
+- playbook$ ansible-vault encrypt group_vars/all/vault.yml --ask-vault-pass 
+- playbook$ ansible-vault decrypt group_vars/all/vault.yml --ask-vault-pass 
 ```
 
 #### Finally
 After confirming everything is working correctly;
 - Remember to encrypt if you have decrypted variables.
 - Remember to change back crontab run time back to 3.00 am everyday. i.e  0 3 * * *
-
-
