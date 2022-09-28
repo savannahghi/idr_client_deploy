@@ -1,5 +1,5 @@
 ### Overview
-This a simple playbook to automate idr client installation. IDR client is a service application that automates running data extraction from a pre-defined database. This playbook should be run a server that hosts the database from which the client will extract data.
+This a simple playbook to automate idr client installation. IDR client is a service application that automates running data extraction from a pre-defined database. This playbook should be run on a server that hosts the database from which the client will extract data.
 
 
 ### Download and Run the playbook.
@@ -8,12 +8,12 @@ sudo apt install curl
 curl -L https://github.com/savannahghi/idr_client_deploy/archive/refs/heads/main.zip -o idr_client.zip
 unzip idr_client.zip
 cd idr_client_deploy-main
-./install.sh 
+sudo ./install.sh 
 ```
 
 ### Required passwords:
-- Become_pass (this is the admin/root password of the server.)
-- Vault_pass (this should be provided provided)
+- `BECOME password:` (this is the admin/root password of the server.)
+- `Vault password:` (this should be provided offline)
 
 #### On a successful run, expect:
 - Installation of ansible 2.9+
@@ -35,7 +35,25 @@ nano config.yaml  // open your config file for editing and edit this sections:
 ./run  // run the application manually. Successful run should print *Done.* on the terminal.
 ```
 
-#### Extra actions (Tweak cron for a quick test):
+### Updating ETL
+- Open link below to show list of existing schedulers
+ `http://localhost:8080/openmrs/admin/scheduler/scheduler.list`
+- If there is already a scheduler for etl table tick the checkbox, scroll to the bottom and click stop.
+    - Click on it to open for edit
+    - Ensure shedulable class is set to: `org.openmrs.logic.task.InitializeLogicRuleProvidersTask`
+    - Click on `schedule` to set the start time at `23:23:59`
+    - Ensure to check `Start on startup`, Set Repeat interval to: `1` `days` -> save
+    - Go back to list of schedulers, check the etl one, scroll to the bottom to start.
+- If it does not exist, create one by double clicking on `Add task`;
+    - Give it a name e.g Etl task
+    - Paste Shedulable class as `org.openmrs.logic.task.InitializeLogicRuleProvidersTask`
+    - Click on `shedule` and repeat the values as above.
+    - Same steps as previous.
+
+### Optional tasks
+- Everything after this section is optional.
+
+#### Tweaking cron service:
 Tweak cron service to run every minute \
 e.g for this do; \
 change the running period to  * * * * * /cron/command. \
@@ -57,4 +75,4 @@ You may want to read/change the variables used in the playbook;
 #### Finally
 After confirming everything is working correctly;
 - Remember to encrypt if you have decrypted variables.
-- Remember to change back crontab run time back to 3.00 am everyday. i.e  0 3 * * *
+- Remember to change back crontab run time back to 3.00 am everyday. i.e  0 3,9,15 * * *

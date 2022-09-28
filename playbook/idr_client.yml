@@ -68,11 +68,11 @@
         force: yes
 
 
-    - name: Create a cron task to run the extraction every day at 3.00 a.m
+    - name: Create a cron task to run the extraction every day at 3am, 9am and 3pm
       ansible.builtin.cron:
         name: run auto extraction
         user: "{{ user }}"
-        hour: "3"
+        hour: "3,9,15"
         minute: "0"
         job: "{{ idr_home_dir }}/run.sh"
         
