@@ -12,7 +12,6 @@
         update_password: always
         password: "{{ user_pwd | password_hash('sha512')}}"
         state: present
-
     
   tasks:
     - name: Create application's home directory.
@@ -22,7 +21,7 @@
         path: "{{idr_home_dir}}" 
         state: directory
         owner: "{{ user }}"
-        mode: 0755  
+        mode: "0755"  
 
 
     - name: Create logs directory.
@@ -32,6 +31,7 @@
         path: "{{ idr_home_dir }}/logs"
         state: directory
         owner: "{{ user }}"
+        group: "{{ user }}"
         
 
     - name: Copy the configuration file to app home directory
@@ -39,6 +39,7 @@
         src: app.config.j2
         dest: "{{ idr_home_dir }}/config.yaml"
         owner: "{{ user }}"
+        group: "{{ user }}"
         
 
     - name: Copy script for running the client to idr home dir. 
@@ -46,7 +47,8 @@
         src: ./run.sh
         dest: "{{ idr_home_dir }}"
         owner: "{{ user }}"
-        mode: 0755
+        group: "{{ user }}"
+        mode: "0755"
 
 
     - name: Get the url for downloading the latest idr_client binaries.
@@ -64,8 +66,15 @@
         url: "{{ idr_release.json.assets[0]['browser_download_url'] }}"
         dest: "{{ idr_home_dir }}/client"
         owner: "{{ user }}"
-        mode: 0755
+        group: "{{ user }}"
+        mode: "0755"
         force: yes
+
+
+    - name: Remove existing cron
+      ansible.builtin.cron:
+        name: run auto extraction
+        state: absent
 
 
     - name: Create a cron task to run the extraction every day at 3am, 9am and 3pm
