@@ -36,7 +36,7 @@
 
     - name: Copy the configuration file to app home directory
       ansible.builtin.template:
-        src: app.config.j2
+        src: config.yaml
         dest: "{{ idr_home_dir }}/config.yaml"
         owner: "{{ user }}"
         group: "{{ user }}"

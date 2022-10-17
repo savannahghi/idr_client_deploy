@@ -33,6 +33,24 @@ LOGGING:
       level: "DEBUG"
       propagate: true
 
+# The retry module global configuration. The values here will be used for each
+# retry instance when not specified.
+# This setting is not required and defaults to the values given below.
+RETRY:
+  default_deadline: 300  # Seconds
+  default_initial_delay: 1.0  # Seconds
+  default_maximum_delay: 60  # Seconds
+  default_multiplicative_factor: 2.0
+  enable_retries: true
+
+# These are the tasks to be executed during the application set up phase. The
+# tasks are given the current value of the setting they are registered for or
+# None if no value was given. Their return value is then assigned as the new
+# value of the setting.
+# This is not a required setting and defaults to an empty list.
+SETTINGS_INITIALIZERS:
+  - "app.lib.retry.RetryInitializer"
+
 # The different data source types supported by the app. This determines the
 # kinds of data that the app can extract and send to a server.
 SUPPORTED_DATA_SOURCE_TYPES:
