@@ -23,7 +23,7 @@ LOGGING:
       backupCount: 5
       class: "logging.handlers.RotatingFileHandler"
       encoding: "utf-8"
-      filename: "logs/idr_client.log"
+      filename: "{{ app_logs_dir }}/idr_client.log"
       formatter: "verbose"
       level: "DEBUG"
       maxBytes: 1048576  # 1 MB
@@ -79,9 +79,9 @@ DEFAULT_HTTP_API_DIALECT_FACTORY: "app.lib.http.idr_server_api_v1_dialect_factor
 # API dialects.
 
 REMOTE_SERVER:
-  host: "{{server_url}}"
-  username: "{{server_username}}"
-  password: "{{server_password}}"
+  host: "{{ idr_server_url }}"
+  username: "{{ idr_server_username }}"
+  password: "{{ idr_server_password }}"
 
 
 # =============================================================================
@@ -89,10 +89,11 @@ REMOTE_SERVER:
 # =============================================================================
 
 MYSQL_DB_INSTANCE:
-  host: "localhost"
-  port: 3306
-  username: "{{mysql_db_username}}"
-  password: "{{mysql_db_password}}"
+  host: "{{ host_mysql_address }}"
+  port: "{{ host_mysql_port }}"
+  username: "{{ host_mysql_username }}"
+  password: "{{ host_mysql_password }}"
+
 
 # =============================================================================
 # FACILITY DETAILS
@@ -100,3 +101,4 @@ MYSQL_DB_INSTANCE:
 
 ORG_UNIT_CODE: "enter_mfl_code" 
 ORG_UNIT_NAME: "enter_org_unit_name"
+
