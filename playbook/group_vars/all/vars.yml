@@ -1,16 +1,24 @@
 ---
-# user details
-user: "{{ idr_user }}"
-user_pwd: "{{ idr_user_pwd }}"
-user_group: "{{ idr_user_group }}"
-home_dir: "{{ idr_home_dir }}"
-release_url: "{{ idr_release_url }}"
+# general
+app_config_dir: /etc/idr_client
+app_desktop_entry_installation_dir: /usr/share/applications
+app_download_url: https://api.github.com/repos/savannahghi/idr-client/releases/latest
+app_icon_installation_dir: /usr/share/pixmaps
+app_installation_dir: /usr/local/bin
+app_logs_dir: /var/log/idr_client
 
-# server url and credentials
-server_url: "{{ server_url }}"
-server_username: "{{ server_username }}"
-server_password: "{{ server_password }}"
+# app user details
+app_user: "{{ vault_app_user }}"
+app_user_group: "{{ vault_app_user_group }}"
+app_user_pwd: "{{ vault_app_user_pwd }}"
 
-# mysql_db credentials
-mysql_db_username: "{{ mysql_db_username }}"
-mysql_db_password: "{{ mysql_db_password }}"
+# idr server url and credentials
+idr_server_password: "{{ vault_idr_server_password }}"
+idr_server_url: "{{ vault_idr_server_url }}"
+idr_server_username: "{{ vault_idr_server_username }}"
+
+# host mysql_db credentials
+host_mysql_address: "{{ vault_host_mysql_address }}"
+host_mysql_password: "{{ vault_host_mysql_password }}"
+host_mysql_port: "{{ vault_host_mysql_port }}"
+host_mysql_username: "{{ vault_host_mysql_username }}"

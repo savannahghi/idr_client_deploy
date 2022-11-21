@@ -1,41 +1,60 @@
-### Overview
-This a simple playbook to automate idr client installation. IDR client is a service application that automates running data extraction from a pre-defined database. This playbook should be run on a server that hosts the database from which the client will extract data.
+# Overview
+This playbook installs and setups the [IDR Client](https://github.com/savannahghi/idr-client) on Ubuntu 16.04 LTS, 18.04 LTS and 20.04 LTS hosts. IDR Client is an ETL(extract, transform and load) tool that extracts data from data sources such as databases and loads the data to a data sink such as the [IDR Server](https://github.com/savannahghi/idr-server). This playbook should be run on an Ubuntu host that contains data sources with data of interest.
 
 
-### Download and Run the playbook.
-```
+## Prerequisite
+Before running the playbook, please ensure that you have curl installed using the following command:
+```bash
 sudo apt install curl
-curl -L https://github.com/savannahghi/idr_client_deploy/archive/refs/heads/main.zip -o idr_client.zip
-unzip idr_client.zip
-cd idr_client_deploy-main
-sudo ./install.sh 
 ```
 
-### Required passwords:
-- `BECOME password:` (this is the admin/root password of the server.)
-- `Vault password:` (this should be provided offline)
+During the installation process, you will also be prompted to provide the following passwords:
+- `BECOME password:` This is the password of a `sudoer/admin` on the host. Leave this blank if already running as the root user.
+- `Vault password:` This will be provided offline and used to decrypt the encrypted content.
 
-#### On a successful run, expect:
-- Installation of ansible 2.9+
-- Creation of new user on the system
-- Creation of a default folder in which to run client app; the folder contains:
-  client app, config.yaml, logs directory and run.sh file.
-- Creation of cron task that is scheduled to run everyday at 3.00 am
+Ensure you have those beforehand.
 
-#### Editing configuration file:
 
-```
-sudo -u idr -i  // open terminal as user idr using admin password.
-cd /home/idr/idr_client  // navigate to root directory of the application.
-nano config.yaml  // open your config file for editing and edit this sections: 
-#============================================================================
-- SQL DATA SOURCES SETTINGS
-- FACILITY DETAILS
-#============================================================================
-./run  // run the application manually. Successful run should print *Done.* on the terminal.
+## Installation
+
+To run the installation, run the following commands:
+
+```bash
+sudo curl -L https://raw.githubusercontent.com/savannahghi/idr_client_deploy/main/install.sh | sudo bash
 ```
 
-### Updating ETL
+> **NOTE:** The instructions and examples from this section henceforth assume that the default or typical installation paramaters are used. If that's not the case, replace those values as appropriate. If in doubt, confirm the values in use from the appropriate `playbook\group_vars\**\*.yml` file(s). 
+
+This should perform the following actions:
+- Installation of `Ansible 2.9+`, `unzip`, `cron` if they aren't already installed.
+- Creation of new user on the system used to run the application. Typically, this user will be  named `idr`.
+- Creation of a folders to store the application configurations and logs. Typically, these will be `/etc/idr_client/` and `/var/log/idr_client` respectively.
+- Creation of cron task on the application user that is scheduled to run everyday at 3:00 am, 9:00am and 3:00pm.
+
+After the installation, you will need to edit the configuration file with host specific paramaters. This can be achieved using the command:
+
+```bash
+sudo -u idr nano /etc/idr_client/config.yaml
+```
+
+Ensure that the config variables match those of the host, especially the `SQL DATA SOURCES SETTINGS` and `FACILITY DETAILS` sections. Once you are done, save the new changes using `CTRL+s`  and exit from the editor using the `CTRL+x`.
+
+> **NOTE(For Developers):** To install the app from a different branch other than `main`, pass the name of the branch to the `bash` command (last command in the pipe), as the variable `IDR_DEPLOY_BRANCH`. For example, to install the app from the `develop` branch, use the following command:
+> ```bash
+>  sudo curl -L https://raw.githubusercontent.com/savannahghi/idr_client_deploy/main/install.sh | sudo IDR_DEPLOY_BRANCH=develop bash
+> ```
+
+
+## Runing the IDR Client
+After a successfull installation, the client can be run using the fillowing command.
+
+```bash
+sudo -u idr /usr/local/bin/run_idr_client
+```
+
+
+## Working with KenyaEMR as a Data Source (Scheduling ETL)
+This section details how to configure `KenyaEMR` to ensure data in the `kenyaemr_etl` database tables is refreshed periodically.
 - Open link below to show list of existing schedulers
  `http://localhost:8080/openmrs/admin/scheduler/scheduler.list`
 - If there is already a scheduler for etl table tick the checkbox, scroll to the bottom and click stop.
@@ -50,29 +69,36 @@ nano config.yaml  // open your config file for editing and edit this sections:
     - Click on `shedule` and repeat the values as above.
     - Same steps as previous.
 
-### Optional tasks
-- Everything after this section is optional.
+## Optional Tasks
+Everything after this section is optional.
 
-#### Tweaking cron service:
+### Tweaking the Cron Entry:
 Tweak cron service to run every minute \
 e.g for this do; \
 change the running period to  * * * * * /cron/command. \
-**NOTE:** Be careful to edit the correct crontab. It should be specifically for user idr.
-```
-server@idr$ crontab -e  // open cron file
-server@idr$ tail -f /home/idr/idr_client/extracts.log  // log the changes on the log file in real time.
-```
-#### Playbook secrets
+> **NOTE:** Be careful to edit the correct crontab. It should be specifical to the application user( typically named `idr`) .
 
-You may want to read/change the variables used in the playbook; 
-> decryption_key is the secret word that will help you encrypt/decrypt the variables. 
+```bash
+sudo -u idr crontab -e  // open cron file
 ```
-- idr_client_deploy-main$ cd playbook 
-- playbook$ ansible-vault encrypt group_vars/all/vault.yml --ask-vault-pass 
-- playbook$ ansible-vault decrypt group_vars/all/vault.yml --ask-vault-pass 
+### Change the Installation Paramaters
+
+You may want to change the installation paramaters to suite a particular host. This can be achieved by modifying the entries located in the `yaml` files at `playbook\group_vars\**\` directories. The contents in `playbook\group_vars\**\vars.yaml` are plain text while those in `playbook\group_vars\**\vault.yml` are encrypted. The later files have to be decrypted before any modifications can be performed to its contents. This can be done using the following command:
+
+```bash
+# Assuming  you are in this repositor's root folder, i.e The one with the README.md file
+ansible-vault decrypt playbook/group_vars/**/*vault.yml --ask-vault-pass 
 ```
 
-#### Finally
-After confirming everything is working correctly;
-- Remember to encrypt if you have decrypted variables.
-- Remember to change back crontab run time back to 3.00 am everyday. i.e  0 3,9,15 * * *
+When asked, provide the vault password (to be communicated offline). When done, encrypt the file again using the command:
+
+
+```bash
+# Assuming  you are in this repositor's root folder, i.e The one with the README.md file
+ansible-vault encrypt playbook/group_vars/**/*vault.yml --ask-vault-pass 
+```
+
+> **CAUTION:** After confirming everything is working correctly;
+> - Remember to encrypt if you have decrypted variables.
+> - Remember to change back crontab run time back to 3.00 am everyday. i.e  0 3,9,15 * * *
+

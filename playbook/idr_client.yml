@@ -3,85 +3,134 @@
   connection: local
   become: yes
   pre_tasks:
-
-    - name: Add our application user to the system.
-      ansible.builtin.user:
-        name: "{{ user }}"
-        comment: "Custom user for running idr related tasks."
-        shell: /bin/bash
-        update_password: always
-        password: "{{ user_pwd | password_hash('sha512')}}"
+    - name: Add application user group.
+      ansible.builtin.group:
+        name: "{{ app_user_group }}"
         state: present
+        system: yes
+      become: yes
+
+    - name: Add application user.
+      ansible.builtin.user:
+        comment: Custom user for running idr related tasks.
+        group: "{{ app_user_group }}"
+        name: "{{ app_user }}"
+        password: "{{ app_user_pwd | password_hash('sha512') }}"
+        shell: /bin/bash
+        state: present
+        system: yes
+        update_password: always
+      become: yes
     
   tasks:
-    - name: Create application's home directory.
-      become: yes
-      become_user: "{{ user }}"
-      file:
-        path: "{{idr_home_dir}}" 
+    - name: Create essential directories for the application.
+      ansible.builtin.file:
+        group: "{{ app_user_group }}"
+        mode: "{{ item.mode }}"  
+        owner: root
+        path: "{{ item.dir }}" 
         state: directory
-        owner: "{{ user }}"
-        mode: "0755"  
-
-
-    - name: Create logs directory.
       become: yes
-      become_user: "{{ user }}"
-      file:
-        path: "{{ idr_home_dir }}/logs"
-        state: directory
-        owner: "{{ user }}"
-        group: "{{ user }}"
-        
+      loop:
+        - { dir: "{{ app_config_dir }}", mode: "ug=rwx,o=rx,g+s" }
+        - { dir: "{{ app_logs_dir }}", mode: "a=rwx,g+s" }  # Make the logs directory world writable allowing any user to run the application.
 
-    - name: Copy the configuration file to app home directory
-      ansible.builtin.template:
-        src: config.yaml
-        dest: "{{ idr_home_dir }}/config.yaml"
-        owner: "{{ user }}"
-        group: "{{ user }}"
-        
-
-    - name: Copy script for running the client to idr home dir. 
-      copy:
-        src: ./run.sh
-        dest: "{{ idr_home_dir }}"
-        owner: "{{ user }}"
-        group: "{{ user }}"
-        mode: "0755"
-
-
-    - name: Get the url for downloading the latest idr_client binaries.
-      uri:
-        url: "{{ release_url }}"
-        return_content: yes
-        body_format: json
-      register: idr_release
-      until: idr_release.status == 200
-      retries: 5
-
-
-    - name: Download client binaries in executable mode.
-      get_url:
-        url: "{{ idr_release.json.assets[0]['browser_download_url'] }}"
-        dest: "{{ idr_home_dir }}/client"
-        owner: "{{ user }}"
-        group: "{{ user }}"
-        mode: "0755"
+    - name: Get latest application version data.
+      ansible.builtin.uri:
+        follow_redirects: safe
         force: yes
+        headers:
+          Accept: application/json
+        method: GET
+        return_content: yes
+        status_code: 200
+        url: "{{ app_download_url }}"
+      register: app_version_data
+      retries: 5
+      until: app_version_data.status == 200
 
+    - name: Save app version data.
+      ansible.builtin.copy:
+        backup: yes
+        content: "{{ app_version_data.json }}"
+        dest: "{{ app_config_dir }}/app_version_data.json"
+        force: yes
+        group: "{{ app_user_group }}"
+        mode: "ug=rw,o=r"
+        owner: root
+      become: yes
 
-    - name: Remove existing cron
+    - name: Download latest application version.
+      ansible.builtin.get_url:
+        dest: "{{ app_installation_dir }}/idr_client"
+        force: yes
+        group: "{{ app_user_group }}"
+        owner: root
+        mode: "a=rx"
+        url: "{{ app_version_data.json.assets[0]['browser_download_url'] }}"
+      become: yes
+
+    - name: Copy script for running the client to the installation directory. 
+      ansible.builtin.template:
+        dest: "{{ app_installation_dir }}/run_idr_client"
+        force: yes
+        group: "{{ app_user_group }}"
+        owner: root
+        mode: "ug=rwx,o=rx"
+        src: run_idr_client.sh
+      become: yes
+
+    - name: Copy the application configuration file to the appropriate directory.
+      ansible.builtin.template:
+        dest: "{{ app_config_dir }}/config.yaml"
+        force: yes
+        group: "{{ app_user_group }}"
+        owner: root
+        mode: "u=rw,o=r"
+        src: config.yaml
+      become: yes
+
+    - name: Remove existing cron entries for running the client.
       ansible.builtin.cron:
-        name: run auto extraction
+        name: "{{ item }}"
         state: absent
+        user: "{{ app_user }}"
+      loop:
+        - run_idr_client
+        - run auto extraction
 
-
-    - name: Create a cron task to run the extraction every day at 3am, 9am and 3pm
+    - name: Create a cron entry to run the client every day at 3am, 9am and 3pm.
       ansible.builtin.cron:
-        name: run auto extraction
-        user: "{{ user }}"
         hour: "3,9,15"
+        job: "{{ app_installation_dir }}/run_idr_client"
         minute: "0"
-        job: "{{ idr_home_dir }}/run.sh"
-        
+        name: run_idr_client
+        state: present
+        user: "{{ app_user }}"
+       
+    - name: Add a desktop entry for the application.
+      ansible.builtin.template:
+        dest: "{{ app_desktop_entry_installation_dir }}/idr-client.desktop"
+        force: yes
+        group: root
+        mode: "u=rw,go=r"
+        owner: root
+        src: idr-client.desktop
+      become: yes
+
+    - name: Add an icon for the application.
+      ansible.builtin.copy:
+        dest: "{{ app_icon_installation_dir }}/idr_logo.png"
+        force: yes
+        group: root
+        mode: "u=rw,go=r"
+        owner: root
+        src: idr_logo.png
+      become: yes
+
+    - name: Update desktop entries database.
+      ansible.builtin.shell:
+        cmd: "update-desktop-database {{ app_desktop_entry_installation_dir }}"
+        warn: no
+      become: yes
+
