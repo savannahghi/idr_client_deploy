@@ -1,0 +1,13 @@
+[Desktop Entry]
+Categories=Utility;ConsoleOnly;X-ETL;X-Tool;
+Comment=An ETL tool that extracts data from data sources such as databases and loads the data to a data sink.
+Exec={{ app_installation_dir }}/run_idr_client
+Icon={{ app_icon_installation_dir }}/idr_logo.png
+Name=IDR Client
+GenericName=ETL Tool
+Keywords=client;etl:idr;
+Terminal=true
+TryExec={{ app_installation_dir }}/run_idr_client
+Type=Application
+Version=1.0
+
