@@ -20,7 +20,7 @@ Ensure you have those beforehand.
 To run the installation, run the following commands:
 
 ```bash
-sudo curl -L https://raw.githubusercontent.com/savannahghi/idr_client_deploy/main/install.sh | bash
+sudo curl -L https://raw.githubusercontent.com/savannahghi/idr_client_deploy/main/install.sh | sudo bash
 ```
 
 > **NOTE:** The instructions and examples from this section henceforth assume that the default or typical installation paramaters are used. If that's not the case, replace those values as appropriate. If in doubt, confirm the values in use from the appropriate `playbook\group_vars\**\*.yml` file(s). 
@@ -41,7 +41,7 @@ Ensure that the config variables match those of the host, especially the `SQL DA
 
 > **NOTE(For Developers):** To install the app from a different branch other than `main`, pass the name of the branch to the `bash` command (last command in the pipe), as the variable `IDR_DEPLOY_BRANCH`. For example, to install the app from the `develop` branch, use the following command:
 > ```bash
->  sudo curl -L https://raw.githubusercontent.com/savannahghi/idr_client_deploy/main/install.sh | IDR_DEPLOY_BRANCH=develop bash
+>  sudo curl -L https://raw.githubusercontent.com/savannahghi/idr_client_deploy/main/install.sh | sudo IDR_DEPLOY_BRANCH=develop bash
 > ```
 
 
