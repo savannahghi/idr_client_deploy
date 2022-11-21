@@ -86,7 +86,7 @@
         force: yes
         group: "{{ app_user_group }}"
         owner: root
-        mode: "u=rw,o=r"
+        mode: "ug=rw,o=r"
         src: config.yaml
       become: yes
 
