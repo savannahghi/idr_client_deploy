@@ -6,6 +6,7 @@ app_download_url: https://api.github.com/repos/savannahghi/idr-client/releases/l
 app_icon_installation_dir: /usr/share/pixmaps
 app_installation_dir: /usr/local/bin
 app_logs_dir: /var/log/idr_client
+force_app_download: no  # force application re-download regardless of the installed version
 
 # app user details
 app_user: "{{ vault_app_user }}"
