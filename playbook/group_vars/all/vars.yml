@@ -6,7 +6,13 @@ app_download_url: https://api.github.com/repos/savannahghi/idr-client/releases/l
 app_icon_installation_dir: /usr/share/pixmaps
 app_installation_dir: /usr/local/bin
 app_logs_dir: /var/log/idr_client
+do_add_desktop_entries: yes
+do_execute_post_installation_tasks: yes
 force_app_download: no  # force application re-download regardless of the installed version
+hourly_cron_schedule: "3,9,15"
+local_binary_path: ""
+post_installation_script_path: "{{ preferred_temp_dir }}/idr_client_post_installation_tasks.sh"
+preferred_temp_dir: "/tmp"
 
 # app user details
 app_user: "{{ vault_app_user }}"
