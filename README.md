@@ -20,7 +20,7 @@ Ensure you have those beforehand.
 To run the installation, run the following commands:
 
 ```bash
-sudo bash -c "curl -L https://raw.githubusercontent.com/savannahghi/idr_client_deploy/main/install.sh | bash"
+sudo bash -c "$(curl -L https://raw.githubusercontent.com/savannahghi/idr_client_deploy/main/install.sh)"
 ```
 
 > **NOTE:** The instructions and examples from this section henceforth assume that the default or typical installation paramaters are used. If that's not the case, replace those values as appropriate. If in doubt, confirm the values in use from the appropriate `playbook\group_vars\**\*.yml` file(s). 
@@ -34,17 +34,17 @@ This should perform the following actions:
 - Creation of cron task on the application user that is scheduled to run everyday at 3:00 am, 9:00am and 3:00pm.
 - Add desktop entries allowing the application to be easily invoked from the host's desktop environment.
 
-After the installation, you will need to edit the configuration file with host specific paramaters. This can be achieved using the command:
+After a successful installation, you will need to edit the configuration file with host specific parameters. As this is an important step before using the client, the default behavior of the installation script is to open the configuration file for editing after the installation. If this doesn't happen, for some reason, you can open the config file for editing using the following command:
 
 ```bash
-sudo -u idr nano /etc/idr_client/config.yaml
+sudo -u idr nano /etc/idr_client/config.yml
 ```
 
 Ensure that the config variables match those of the host, especially the `SQL DATA SOURCES SETTINGS` and `FACILITY DETAILS` sections. Once you are done, save the new changes using `CTRL+s`  and exit from the editor using the `CTRL+x`.
 
 
-## Runing the IDR Client
-After a successfull installation, the client can be run using the fillowing command.
+## Running the IDR Client
+After a successful installation, the client can be run using the following command.
 
 ```bash
 sudo -u idr /usr/local/bin/run_idr_client
@@ -57,18 +57,18 @@ This section details how to configure `KenyaEMR` to ensure data in the `kenyaemr
  `http://localhost:8080/openmrs/admin/scheduler/scheduler.list`
 - If there is already a scheduler for etl table tick the checkbox, scroll to the bottom and click stop.
     - Click on it to open for edit
-    - Ensure shedulable class is set to: `org.openmrs.logic.task.InitializeLogicRuleProvidersTask`
-    - Click on `schedule` to set the start time at `23:23:59`
+    - Ensure Schedulable class is set to: `org.openmrs.logic.task.InitializeLogicRuleProvidersTask`
+    - Click on `Schedule` to set the start time at `23:23:59`
     - Ensure to check `Start on startup`, Set Repeat interval to: `1` `days` -> save
     - Go back to list of schedulers, check the etl one, scroll to the bottom to start.
 - If it does not exist, create one by double clicking on `Add task`;
     - Give it a name e.g Etl task
-    - Paste Shedulable class as `org.openmrs.logic.task.InitializeLogicRuleProvidersTask`
-    - Click on `shedule` and repeat the values as above.
+    - Paste Schedulable class as `org.openmrs.logic.task.InitializeLogicRuleProvidersTask`
+    - Click on `schedule` and repeat the values as above.
     - Same steps as previous.
 
 ## Optional Tasks
-Everything in this section is optional and requires a lot care or else you risk breaking the installation process. Users are **highly discoraged** from attempting these tasks unless they know what they are doing.
+Everything in this section is optional and requires a lot of care or else you risk breaking the installation process. Users are **highly discouraged** from attempting these tasks unless they know what they are doing!
 
 Proceed with **CAUTION**.
 
@@ -76,7 +76,7 @@ Proceed with **CAUTION**.
 Tweak cron service to run every minute \
 e.g for this do; \
 change the running period to  * * * * * /cron/command. \
-> **NOTE:** Be careful to edit the correct crontab. It should be specifical to the application user( typically named `idr`) .
+> **NOTE:** Be careful to edit the correct crontab. It should be specific to the application user( typically named `idr`) .
 
 ```bash
 sudo -u idr crontab -e  # open cron file for the user named 'idr'
@@ -91,21 +91,25 @@ Below are examples of how both of these approaches can be used to install the cl
 ```bash
 # Using the export declaration command
 export IDR_DEPLOY_BRANCH=develop
-# The '-E' option on sudo is crutial for this to work
-sudo -E bash -c "curl -L https://raw.githubusercontent.com/savannahghi/idr_client_deploy/main/install.sh | bash"
+# The '-E' option on sudo is crucial for this to work
+sudo -E bash -c "$(curl -L https://raw.githubusercontent.com/savannahghi/idr_client_deploy/main/install.sh)"
 ```
+
 ```bash
 # Prepending a variable on a shell
-sudo bash -c "curl -L https://raw.githubusercontent.com/savannahghi/idr_client_deploy/main/install.sh | IDR_DEPLOY_BRANCH=develop bash"
+sudo IDR_DEPLOY_BRANCH=develop bash -c "$(curl -L https://raw.githubusercontent.com/savannahghi/idr_client_deploy/main/install.sh)"
 ```
 
 Use whatever approach suits you best.
 
 **Supported Variables**
-| Variables          | Default Value | Explanation                                                                                                                                                                                                                                                                                      |
-|--------------------|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| FORCE_APP_DOWNLOAD | no            | The default behaviour of the installation process is to skip a fresh installation of the client if the latest version is already installed. By setting this variable to `yes`, a fresh installation of the client will be performed regardless of the current installation status of the client. |
-| IDR_DEPLOY_BRANCH  | main          | Defines the branch(on this repository) from which to deploy/install the IDR Client from. This can be usefull for example when testing new changes on the installation playbook.                                                                                                                  |
+| Variables                    	| Default Value 	| Explanation                                                                                                                                                                                                                                                                                                                                                                                                                            	|
+|------------------------------	|---------------	|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
+| FORCE_APP_DOWNLOAD           	| no            	| The default behavior of the installation process is to skip a fresh installation of the client if the latest version is already installed. By setting this variable to `yes`, a fresh installation of the client will be performed regardless of the current installation status of the client.                                                                                                                                        	|
+| IDR_DEPLOY_BRANCH            	| main          	| Defines the branch(on this repository) from which to deploy/install the IDR Client from. This can be useful for example when testing new changes on the installation playbook.                                                                                                                                                                                                                                                         	|
+| LOCAL_BINARY_PATH            	|               	| Specifies an alternate location on the host filesystem from where to get the app binary from instead of downloading the binary from github(the default behavior). This is useful in locations where the internet connectivity is unreliable and downloading the binary is not ideal or is slow. Set this variable to a non-empty string to trigger this behavior. When not empty or `None`, the given string **must** be a valid path. 	|
+| SKIP_DESKTOP_ENTRIES         	| no            	| By default, the installation process installs desktop entries on the host making it easy to launch the application from a graphical user interface. This can be disabled for hosts where it's not applicable by setting the value of this variable to `yes`.                                                                                                                                                                           	|
+| SKIP_POST_INSTALLATION_TASKS 	| no            	| The default behavior of the installation process is to run post installation tasks that among other things open the application configuration file for editing and performs some clean up. This can be disabled by setting this value to `yes`.                                                                                                                                                                                        	|
 
 There are more variables to come.
 ### 3. Change the Playbook Variables
@@ -113,7 +117,7 @@ There are more variables to come.
 If the installation script parameters aren't granular enough for your needs, you may want to change the playbook's variables which give you more control over the installation process. This can be achieved by modifying the entries defined in the `yaml` files located at `playbook\group_vars\**\` directories. The contents in `playbook\group_vars\**\vars.yaml` are plain text while those in `playbook\group_vars\**\vault.yml` are encrypted. The later files have to be decrypted before any modifications can be performed to their contents. This can be done using the following command:
 
 ```bash
-# Assuming  you are in this repositor's root folder, i.e The one with the README.md file
+# Assuming  you are in this repository's root folder, i.e The one with the README.md file
 ansible-vault decrypt playbook/group_vars/**/*vault.yml --ask-vault-pass 
 ```
 
@@ -121,7 +125,7 @@ When asked, provide the vault password (to be communicated offline). When done, 
 
 
 ```bash
-# Assuming  you are in this repositor's root folder, i.e The one with the README.md file
+# Assuming  you are in this repository's root folder, i.e The one with the README.md file
 ansible-vault encrypt playbook/group_vars/**/*vault.yml --ask-vault-pass 
 ```
 
