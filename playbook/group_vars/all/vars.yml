@@ -10,6 +10,7 @@ do_add_desktop_entries: yes
 do_execute_post_installation_tasks: yes
 force_app_download: no  # force application re-download regardless of the installed version
 hourly_cron_schedule: "3,9,15"
+cron_sleep_randomizer: bash -c 'sleep $((RANDOM*3600/33323))'; # Delay execution at random mins between 0-59
 local_binary_path: ""
 post_installation_script_path: "{{ preferred_temp_dir }}/idr_client_post_installation_tasks.sh"
 preferred_temp_dir: "/tmp"
