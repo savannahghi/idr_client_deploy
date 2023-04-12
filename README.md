@@ -31,10 +31,10 @@ This should perform the following actions:
 - Creation of a folders to store the application configurations and logs. Typically, these will be `/etc/idr_client/` and `/var/log/idr_client` respectively.
 - Check if there is an existing IDR Client installation and if so, which version. If the [latest version](https://github.com/savannahghi/idr-client/releases) of the client is already installed, the installation ends here and the rest of the steps are skipped.
 - Download and install the latest version on the IDR Client on the host.
-- Creation of cron task on the application user that is scheduled to run everyday at 3:00 am, 9:00am and 3:00pm.
+- Creation of cron task on the application user scheduled to run every day at a random time within the hours of 3:00 am, 9:00 am and 3:00 pm.
 - Add desktop entries allowing the application to be easily invoked from the host's desktop environment.
 
-After a successful installation, you will need to edit the configuration file with host specific parameters. As this is an important step before using the client, the default behavior of the installation script is to open the configuration file for editing after the installation. If this doesn't happen, for some reason, you can open the config file for editing using the following command:
+After a successful installation, you will need to `edit the configuration file` with host specific parameters. As this is an important step before using the client, the default behavior of the installation script is to open the configuration file for editing after the installation. If this doesn't happen, for some reason, you can open the config file for editing using the following command:
 
 ```bash
 sudo -u idr nano /etc/idr_client/config.yml

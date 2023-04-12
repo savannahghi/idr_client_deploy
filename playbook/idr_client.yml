@@ -136,7 +136,7 @@
         - name: Create an hourly cron entry to run the client periodically
           ansible.builtin.cron:
             hour: "{{ hourly_cron_schedule }}"
-            job: "{{ app_installation_dir }}/run_idr_client"
+            job: "{{ cron_sleep_randomizer }} {{ app_installation_dir }}/run_idr_client"
             minute: "0"
             name: run_idr_client
             state: present
